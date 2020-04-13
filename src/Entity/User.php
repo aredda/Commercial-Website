@@ -16,37 +16,37 @@ class User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    public $id;
 
     /**
      * @ORM\Column(type="string", length=32)
      */
-    private $firstName;
+    public $firstName;
 
     /**
      * @ORM\Column(type="string", length=32)
      */
-    private $lastName;
+    public $lastName;
 
     /**
      * @ORM\Column(type="string", length=128)
      */
-    private $email;
+    public $email;
 
     /**
      * @ORM\Column(type="string", length=32)
      */
-    private $password;
+    public $password;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $photo;
+    public $photo;
 
     /**
      * @ORM\Column(type="string", length=16)
      */
-    private $type;
+    public $type;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Favorite", mappedBy="customer", orphanRemoval=true)

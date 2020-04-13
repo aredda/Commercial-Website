@@ -15,16 +15,11 @@ abstract class OperatorUtility
     {
         switch ($operator)
         {
-            case self::BIGGER_THAN:
-                return function ($a, $b) { return $a > $b; };
-            case self::SMALLER_THAN:
-                return function ($a, $b) { return $a < $b; };
-            case self::CONTAINS:
-                return function ($a, $b) { return (strpos ($a, $b) !== false); };
-            case self::BIGGER_THAN_OR_EQUALS:
-                return function ($a, $b) { return $a >= $b; };
-            case self::SMALLER_THAN_OR_EQUALS:
-                return function ($a, $b) { return $a <= $b; };
+            case self::BIGGER_THAN:             return function ($a, $b) { return $a > $b; };
+            case self::SMALLER_THAN:            return function ($a, $b) { return $a < $b; };
+            case self::CONTAINS:                return function ($a, $b) { return (strpos ($a, $b) !== false); };
+            case self::BIGGER_THAN_OR_EQUALS:   return function ($a, $b) { return $a >= $b; };
+            case self::SMALLER_THAN_OR_EQUALS:  return function ($a, $b) { return $a <= $b; };
         }
         # Default case
         return function ($a, $b) { return $a == $b; };

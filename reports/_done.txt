@@ -1,0 +1,2 @@
+• Converting data array to an entity object
+• Dynamic filtering

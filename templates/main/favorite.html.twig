@@ -1,0 +1,51 @@
+{% extends 'base_two_col.html.twig' %}
+
+{% block highlights_name %}My Favorites{% endblock %}
+{% block highlights_desc %}Where all of my favorite products reside!{% endblock %}
+
+{% block left_side %}
+    <ul class="bg-main-dark shadow-lg">
+        <li class="h4 bg-main">Categories</li>
+        {% for category in categories %}
+            <li class='filter-item' 
+                data-key='{{ category.getId() }}' 
+                data-display='{{ category.getName() }}' 
+                filter-prop='product_category_id' 
+                filter-target='favorite'
+                item-container='#list-products'
+                item-name='product_favorite_item'>
+                <img src="../media/list.png" />{{ category.getName() }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block right_side %}
+    <div class='row'>
+        <div class="p-0 col-lg-12 text-center">
+            <button class="btn btn-primary btn-sm btn-select-all float-left">Select all</button>
+            <span class='text-center text-main-dark h6'><span class='txt-select-count text-main'>0</span> selected</span>
+            <button class="btn btn-sm btn-danger float-right btn-remove" target-entity='favorite'>Remove</button>
+        </div>
+    </div>
+    <div class="row" id='list-products'>
+        {% for product in products %}
+            <div class="showcase-item col-lg-12" record-key='{{ product.getId() }}' data-max-quantity='{{ product.getQuantity() }}' data-quantity='0' data-price='{{ product.getPrice() }}'>
+                <div class="row selectable">
+                    <div class="col-lg-3 bg-main rounded-lg shadow"></div>
+                    <div class="col-lg-9">
+                        <h4 class="text-main-dark mt-2">{{ product.getName() }}</h4>
+                        <p>{{ product.getDescription() }}</p>
+                        <span class='position-absolute' style='bottom: 0px'>
+                            <img src="../media/cart.png" class="icon clickable btn-add-to-cart" target-entity='cart' />
+                        </span>
+                        <span class="badge bg-main-dark text-white shadow">{{ product.getPrice () }} $</span>
+                        <span class='text-main-dark position-absolute d-none select-indicator' style='top: 0; right: 0'>
+                            <img class='icon mt-3 mx-2' src='../media/selected.png' />
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

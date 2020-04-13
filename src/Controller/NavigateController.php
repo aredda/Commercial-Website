@@ -2,29 +2,56 @@
 
 namespace App\Controller;
 
+use App\Entity\Cart;
+use App\Entity\Favorite;
 use App\Entity\Product;
-use App\Utility\OperatorUtility as OU;
+use App\Entity\Purchase;
+use App\Entity\PurchaseDetail;
+use App\Utility\OperatorUtility;
 use App\Utility\ReflectionUtility;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class NavigateController extends AbstractController
+class NavigateController extends BaseController
 {
     /**
      * @Route("/filter", name="filter")
      */
-    public function index()
+    public function index(Request $request)
     {
-        $repo = $this->getDoctrine()->getRepository(Product::class);
+        $targetEntity = $this->getEntityName ($request);
 
-        $result = self::filter (Product::class, $repo->findAll(), [
-            'category.name' => 'Condiments',
-            'price' => [2, OU::get(OU::BIGGER_THAN)],
-            'quantity' => [5, OU::get(OU::SMALLER_THAN)]
-        ]);
+        // If the filter requires the customer relativity add the registered id in the session to the criteria
+        if (in_array($targetEntity, [Cart::class, Favorite::class, Purchase::class, PurchaseDetail::class]))
+            $request->request->add (['customer_id' => $request->getSession()->get('user')->getId ()]);
 
-        return new Response(count ($result));
+        return new JsonResponse(['success' => self::filter($targetEntity, $this->getRows($targetEntity), $request->request->all ())]);
+    }
+
+    /**
+     * @Route("/products", name="products");
+     */
+    public function getCustomerProducts (Request $request)
+    {
+        try
+        {
+            $this->validateRequest ($request, ['entity']);
+
+            $entity = $this->getEntityName ($request);
+
+            $criteria = [
+                'customer_id' => $request->session->get ('user')->getId () 
+            ];
+
+            return new JsonResponse(['success' => self::getProducts($entity, $this->getRows($entity), $criteria)]);
+        }
+        catch (Exception $x)
+        {
+            return new JsonResponse (['error' => $x->getMessage()]);
+        }
     }
 
     public static function filter (string $targetEntity, array $data, array $params)
@@ -48,13 +75,15 @@ class NavigateController extends AbstractController
                 $instanceValue = $instance;
                 # Retrieve the operator
                 $operator = is_array($options) ? (count($options) > 0 ? $options[1] : $defaultOperator) : $defaultOperator;
+                # Verify the operator
+                if (!is_callable($operator)) $operator = OperatorUtility::get($operator);
                 # Try to get property with the same name as column
                 $property = ReflectionUtility::getProperty ($targetEntity, $column);
                 # Check if the column is a path to the actual property
-                if (strpos($column, '.') !== false)
+                if (strpos($column, '_') !== false)
                 {
                     # Split the string
-                    $pathTree = explode ('.', $column);
+                    $pathTree = explode ('_', $column);
                     # Prepare requirements
                     $className = $targetEntity;
                     # Loop through tree
@@ -74,10 +103,21 @@ class NavigateController extends AbstractController
                 $pass = call_user_func ($operator, $instanceValue, $criteriaValue);
             }
             # If the instance passes the conditions
-            if ($pass)
-                $result[] = $instance;
+            if ($pass) $result[] = $instance;
         }
         # Return result
         return $result;
+    }
+
+    public static function getProducts (string $entity, array $data, array $criteria)
+    {
+        $products = [];
+
+        $records = NavigateController::filter($entity, $data, $criteria);
+            
+        foreach ($records as $record)
+            $products[] = $record->getProduct ();
+
+        return $products;
     }
 }

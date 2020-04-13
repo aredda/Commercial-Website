@@ -1,0 +1,194 @@
+{% extends 'base.html.twig' %}
+
+{% block highlights_name %}Dashboard{% endblock %}
+{% block highlights_desc %}Management of entities{% endblock %}
+
+{% block body %}
+
+<!-- Showcase section -->
+<div class="row showcase my-3">
+    <div class="col-lg-12 text-center">
+        <div class="btn-group" id='table-tab-controls'>
+            <button class="btn btn-success active">Products</button>
+            <button class="btn btn-success">Categories</button>
+        </div>
+    </div>
+    <div class="col-lg-12 mt-3" id='table-headers'>
+        {# Product Header #}
+        <div class="row">
+            <div class="col-lg-3 p-0 pr-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search by Name" name='in_name'>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success btn-search">Search</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 p-0">
+                <select filter-prop="category_id" filter-target="product" class="custom-select cmb-category">
+                    <option value="-1">All</option>
+                    {% for category in categories %}
+                        <option value='{{ category.getId() }}'>{{ category.getName() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-3"></div>
+            <div class="col-lg-3 p-0">
+                <button class="h-100 border-0 rounded bg-main-dark text-white btn-block shadow btn-insert" data-toggle="modal"
+                    data-target="#modal-product">Add Product</button>
+            </div>
+        </div>
+        {# Category Header #}
+        <div class="row d-none">
+            <div class="offset-9 col-lg-3 p-0">
+                <button class="h-100 border-0 rounded bg-main-dark text-white btn-block shadow btn-insert py-2" data-toggle="modal"
+                    data-target="#modal-category">Add Category</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 p-0 my-3" id='table-container'>
+        {# Product table #}
+        <table class="table table-striped text-center rounded shadow">
+            <thead class="thead bg-main-gradient text-white font-weight-bold">
+                <tr>
+                    <td>Photo</td>
+                    <td>Name</td>
+                    <td>Quantity</td>
+                    <td>Price</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody class="text-secondary" id='list-products'>
+            {% for product in products %}
+                <tr>
+                    <td></td>
+                    <td>{{ product.getName() }}</td>
+                    <td>{{ product.getQuantity() }}</td>
+                    <td>{{ product.getPrice() }} $</td>
+                    <td><img src="../media/edit-primary.png" class="icon btn-edit" data-toggle='modal' data-target='#modal-product' target-entity='product' record-key='{{ product.getId () }}' cleanup='refresh_table_product' ></td>
+                    <td><img src="../media/garbage.png" class="icon btn-delete" target-entity='product' record-key='{{ product.getId () }}' cleanup='refresh_table_product'></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {# Category table #}
+        <table class="table table-striped text-center rounded shadow d-none">
+            <thead class="thead bg-main-gradient text-white font-weight-bold">
+                <tr>
+                    <td>Id</td>
+                    <td>Name</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody class="text-secondary" id='list-categories'>
+            {% for category in categories %}
+                <tr>
+                    <td>{{ category.getId() }}</td>
+                    <td>{{ category.getName() }}</td>
+                    <td><img src="../media/edit-primary.png" class="icon btn-edit" data-toggle='modal' data-target='#modal-category' target-entity='category' record-key='{{ category.getId () }}' cleanup='refresh_table_category'></td>
+                    <td><img src="../media/garbage.png" class="icon btn-delete" target-entity='category' record-key='{{ category.getId() }}' cleanup='refresh_table_category'></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- The Product Form modal -->
+<form class="modal fade" id="modal-product" tabindex="-1" role="dialog" enctype='multipart/form-data'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-main-gradient text-white">
+                <h5 class="modal-title">Add a new product:</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-main-light py-4 px-5">
+                <form class="m-0">
+                    <div class="row mb-2">
+                        <label class="col-sm-4 text-main-dark col-form-label">Name</label>
+                        <div class="col-sm-8">
+                            <input name='name' type="email" class="form-control" placeholder="Product name">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-sm-4 text-main-dark col-form-label">Category</label>
+                        <div class="col-sm-8">
+                            <select name="category" class="custom-select">
+                                {% for category in categories %}
+                                    <option value='{{ category.getId() }}'>{{ category.getName() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-sm-4 text-main-dark col-form-label">Price</label>
+                        <div class="col-sm-8">
+                            <input name='price' type="number" class="form-control" placeholder="Price">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-sm-4 text-main-dark col-form-label">Quantity</label>
+                        <div class="col-sm-8">
+                            <input name='quantity' type="number" class="form-control" placeholder="Q. in stock">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-sm-4 text-main-dark col-form-label">Choose a photo</label>
+                        <div class="col-sm-8">
+                            <div class="custom-file">
+                                <input name='photo' type="file" class="custom-file-input">
+                                <label class="custom-file-label">Choose Photo</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4 text-main-dark col-form-label">Description</label>
+                        <div class="col-sm-8">
+                            <textarea name='description' type="password" class="form-control"
+                                placeholder="Product description"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-success btn-submit" cleanup='refresh_table_product' data-form-id='#modal-product' target-entity='product'>Add</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- The Category Form modal -->
+<form class="modal fade" id="modal-category" tabindex="-1" role="dialog" enctype='multipart/form-data'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-main-gradient text-white">
+                <h5 class="modal-title">Add a new category:</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-main-light py-4 px-5">
+                <form class="m-0">
+                    <div class="row">
+                        <label class="col-sm-4 text-main-dark col-form-label">Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" name='name' class="form-control" placeholder="Category's name">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer p-2">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-success btn-submit" cleanup='refresh_table_category' data-form-id='#modal-category' target-entity='category'>Add</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
+

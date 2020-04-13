@@ -14,19 +14,19 @@ class Cart
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    public $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="carts")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="carts", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $customer;
+    public $customer;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Product", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $product;
+    public $product;
 
     public function getId(): ?int
     {

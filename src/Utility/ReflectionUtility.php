@@ -17,14 +17,14 @@ abstract class ReflectionUtility
     /**
      * Converts an associative array to the targeted entity name
      */
-    public static function toObject (array $data, string $entityName, EntityManager $entityManager)
+    public static function toObject (array $data, string $entityName, EntityManager $entityManager, $target = null)
     {
         # Retrieve the reflection class helper
         $reflector = new ReflectionClass ($entityName);
         # Get the annotation reader
         $reader = new AnnotationReader();
         # Create a plain object
-        $instance = $reflector->newInstance ();
+        $instance = $target ?? $reflector->newInstance ();
         # Loop through data array
         foreach ($data as $key => $value)
         {

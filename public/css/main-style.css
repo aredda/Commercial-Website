@@ -1,0 +1,164 @@
+ul
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+a
+{
+    color: inherit;
+}
+
+.bg-main
+{
+    background: #a7e36b;
+}
+.bg-main-dark
+{
+    background: #83b84f;
+}
+.bg-main-light
+{
+    background: #f7fcf2;
+}
+.bg-main-gradient
+{
+    background: linear-gradient(#a7e36b, #83b84f);
+}
+.bg-transparent
+{
+    background: transparent;
+}
+
+.text-main
+{
+    color: #a7e36b;
+}
+.text-main-dark
+{
+    color: #83b84f;
+}
+.text-main-light
+{
+    color: #f7fcf2;
+}
+.text-shadow-white
+{
+    text-shadow: 1px 1px white;
+}
+
+.hidden 
+{
+    display: none;
+}
+
+.btn-main
+{
+    background: #83b84f;
+    color: #f7fcf2;
+    font-weight: bold;
+    border-width: 0;
+    padding: 5px 15px;
+    border-radius: 5px;
+}
+
+.slideshow
+{
+    transition: transform 0.75s;
+}
+.slideshow:hover
+{
+    transform: scale(1.05);
+}
+.slideshow-handler
+{
+    width: 25px;
+    height: 5px;
+    display: inline-block;
+    cursor: pointer;
+    transition: background 0.5s;
+}
+.slideshow-handler:hover, 
+.active
+{
+    background: #83b84f;
+}
+
+.showcase-navigation > ul
+{
+    padding: 0;
+    margin: 0;
+    color: white;
+    list-style: none;
+}
+.showcase-navigation > ul > li
+{
+    padding: 10px 20px;
+    margin: 0;
+    transition: background 0.25s;
+}
+.showcase-navigation > ul > li:hover,
+.showcase-navigation > ul > li.active
+{
+    background: #a7e36b;
+}
+.showcase-navigation > ul > li > img
+{
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.showcase-item
+{
+    padding: 15px 20px 0 20px;
+}
+.showcase-item .badge
+{
+    float: right;
+}
+
+.icon-list
+{
+    padding: 0;
+    margin: 0;
+}
+
+.icon-list > li
+{
+    display: inline-block;
+    padding: 0 10px;
+}
+
+.icon-list > li img,
+img.icon
+{
+    width: 22px;
+}
+
+.purchase-item .showcase-item:first-child
+{
+    padding-top: 0;
+}
+
+.btn-delete,
+.btn-edit,
+.btn-update,
+.clickable,
+.selectable,
+.arrow-increment,
+.arrow-decrement
+{
+    cursor: pointer;
+}
+
+.showcase-item .icon.clickable
+{
+    filter: invert(0.5);
+}
+
+.added
+{
+    filter: none !important;
+}

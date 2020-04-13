@@ -16,21 +16,21 @@ class Purchase
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    public $id;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $date;
+    public $date;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="purchases")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="purchases", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $customer;
+    public $customer;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\PurchaseDetail", mappedBy="purchase", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\PurchaseDetail", mappedBy="purchase", orphanRemoval=true, fetch="EAGER")
      */
     private $purchaseDetails;
 

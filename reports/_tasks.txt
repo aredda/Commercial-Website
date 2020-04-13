@@ -1,0 +1,28 @@
+• Authentication
+    - Sign in
+    - Sign out
+    - Sign up
+• Cart
+    - [DONE] Filter by {Category}
+    - [DONE] Item Selection
+    - [DONE] Item's quantity counter
+    - [DONE] Removing Item from cart
+    - [DONE] Purchase
+    - [DONE] List ordered products
+• Favorite
+    - [DONE] Filter by {Category}
+    - [DONE] Item Selection
+    - [DONE] Add to cart
+    - [DONE] Remove item from favorites
+    - [DONE] List favorite products
+• History
+    - Filter by {Date}
+    - List purchases
+    - {Number, Total Cost} counters
+• Home
+    - [DONE] Filter by {Category}
+    - [DONE] List products
+    - [DONE] Result counter
+• Dashboard
+    - [DONE] Add, [DONE] Edit, [DONE] Delete {Product, Category}
+    - [DONE] Filter products by {Name, Category}

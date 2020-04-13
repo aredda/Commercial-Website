@@ -14,33 +14,38 @@ class Product
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    public $id;
 
     /**
      * @ORM\Column(type="string", length=1128)
      */
-    private $name;
+    public $name;
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    public $description;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $quantity;
+    public $quantity;
 
     /**
      * @ORM\Column(type="float")
      */
-    private $price;
+    public $price;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $photo;
+    public $photo;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="products", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $category;
+    public $category;
 
     public function getId(): ?int
     {
@@ -105,5 +110,15 @@ class Product
         $this->category = $category;
 
         return $this;
+    }
+
+    public function getDescription ()
+    {
+        return $this->description;
+    }
+
+    public function setDescription ($description)
+    {
+        $this->description = $description;
     }
 }

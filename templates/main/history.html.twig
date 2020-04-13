@@ -1,0 +1,51 @@
+{% extends 'base_two_col.html.twig' %}
+
+{% block highlights_name %}My History{% endblock %}
+{% block highlights_desc %}Tracking all of my purchase deals{% endblock %}
+
+{% block left_side %}
+    <div class="form-group">
+        <label class="text-main-dark">From</label>
+        <input name="start" class="form-control" type="date" />
+    </div>
+    <div class="form-group">
+        <label class="text-main-dark">To</label>
+        <input name="end" class="form-control" type="date" />
+    </div>
+    <button class="py-2 border-0 rounded bg-main-dark text-white btn-block shadow">Filter</button>
+{% endblock %}
+
+{% block right_side %}
+    <div class='row'>
+        <div class="p-0 col-lg-12 text-center">
+            <p class="h6 text-main-dark float-right">Total - <span class="text-main">NNNN</span> $</p>
+            <p class="h6 text-main-dark float-left"><span class="text-main">NNNN</span> purchases</p>
+        </div>
+    </div>
+    <div class='row' id='list-purchases'>
+        {% for purchase in purchases %}
+            <div class="col-lg-12 mb-3 border rounded-top shadow bg-main-light purchase-item">
+                <div class="row bg-main-gradient text-white font-weight-bold p-2">
+                    <div class="col-8">DD/MM/YYY</div>
+                    <div class="col-4 text-right">NNNN $</div>
+                </div>
+                {% for detail in purchase.getPurchaseDetails() %}
+                    <div class="row p-4">
+                        <div class="showcase-item col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-3 bg-main rounded-lg shadow"></div>
+                                <div class="col-lg-9">
+                                    <h4 class="text-main-dark">Product name</h4>
+                                    <p>Product description will be placed here right on this spot.</p>
+                                    <span class="badge bg-main-dark text-white shadow">Total Price$</span>
+                                    <span class="badge bg-main-dark text-white shadow mx-2">Unit Price$</span>
+                                    <span class="badge bg-main-dark text-white shadow">N Units</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

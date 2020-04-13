@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="row showcase my-3">
+        <div class="col-lg p-0 showcase-navigation font-weight-bold">
+            {% block left_side %}{% endblock %}
+        </div>
+        <div class='col-lg-9 showcase-content px-5'>
+            {% block right_side %}{% endblock %}
+        </div>
+    </div>
+    {% block rest %}{% endblock %}
+{% endblock %}

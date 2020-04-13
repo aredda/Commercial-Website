@@ -1,0 +1,70 @@
+{% extends 'base_two_col.html.twig' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block highlights_slider %}
+    <div class="col-lg-5 slideshow bg-main-light rounded-lg shadow">
+        <div class="slideshow-content p-2">
+            {% for product in products %}
+                {% set hide = '' %}
+                {% if loop.index0 > 0 %}{% set hide = 'd-none' %}{% endif %}
+                <div class='row {{ hide }}'>
+                    <div class="col-lg-5 bg-main rounded-lg"></div>
+                    <div class="col-lg">
+                        <h3 class="text-main-dark">{{ product.getName() }}</h3>
+                        <p>{{ product.getDescription() }}</p>
+                        <span class="badge bg-main-dark float-right text-white">{{ product.getPrice() }} $</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="slideshow-control text-center p-2">
+            {% for product in products %}
+                <div class="slideshow-handler bg-main rounded-lg shadow"></div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block left_side %}
+    <ul class="bg-main-dark shadow-lg">
+        <li class="h4 bg-main">Categories</li>
+        {% for category in categories %}
+            <li data-key='{{ category.getId() }}' 
+                data-display='{{ category.getName() }}' 
+                filter-prop='category_id' 
+                filter-target='product' 
+                class='filter-item'
+                item-container='#item-list'
+                item-name='product_item'>
+                <img src="../media/list.png" />{{ category.getName() }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block right_side %}
+    <div class='row'>
+        <div class="p-0 col-lg-12">
+            <p class="m-0 h6 text-main-dark" id='text-counter'>All categories - <span class="text-main">{{ products | length }}</span> results</p>
+        </div>
+    </div>
+    <div class="row" id='item-list'>
+        {% for product in products %}
+            <div class="showcase-item col-lg-6" record-key='{{ product.getId() }}'>
+                <div class="row">
+                    <div class="col-lg-5 bg-main rounded-lg shadow"></div>
+                    <div class="col-lg-7">
+                        <h4 class="text-main-dark">{{ product.getName() }}</h4>
+                        <p>{{ product.getDescription() }}</p>
+                        <span class="badge bg-main-dark text-white shadow">{{ product.getPrice() }} $</span>
+                        <span class='position-absolute' style='bottom: 0px'>
+                            <span><img class='btn-add-to-cart icon clickable d-none mr-1' src='../media/cart.png' target-entity='cart'/></span>
+                            <span><img class='btn-star icon clickable d-none' src='../media/star.png' target-entity='favorite'/></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
