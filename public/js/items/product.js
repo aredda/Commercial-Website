@@ -4,10 +4,14 @@ class ProductItem extends ListItem
 {
     create ()
     {
+        let photo = this.itemData.photo == undefined ? '' : `<img class='w-100 h-100 rounded-lg shadow' src='../${this.itemData.photo}' />`;
+
+        console.log (photo);
+
         return `
         <div class="showcase-item col-lg-6" record-key='${this.itemData.id}'>
             <div class="row">
-                <div class="col-lg-5 bg-main rounded-lg shadow"></div>
+                <div class="col-lg-5 bg-main rounded-lg shadow p-0">${photo}</div>
                 <div class="col-lg-7">
                     <h4 class="text-main-dark">${this.itemData.name}</h4>
                     <p>${this.itemData.description}</p>

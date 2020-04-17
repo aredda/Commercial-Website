@@ -22,13 +22,15 @@ class ListItem
 
     static layout (container, item, dataArray)
     {
-        $(container).empty();
+        // Fade out all of the container's children
+        for (let e of $(container).children ())  
+            $(e).fadeOut (400, function () { $(this).remove (); });
 
         for (let dataRow of dataArray)
         {
             // Bind source
             item.bindSource (dataRow);
-            // Get a copy of element
+            // Append element to the container
             $(container).append (item.create ());
         }
     }

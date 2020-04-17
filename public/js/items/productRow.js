@@ -6,7 +6,6 @@ class ProductTableRow extends ListItem
     {
         return `
         <tr>
-            <td></td>
             <td>${this.itemData.name}</td>
             <td>${this.itemData.quantity}</td>
             <td>${this.itemData.price}</td>

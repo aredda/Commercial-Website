@@ -59,7 +59,7 @@ class User
     private $carts;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Purchase", mappedBy="customer", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Purchase", mappedBy="customer", orphanRemoval=true, fetch="EAGER")
      */
     private $purchases;
 

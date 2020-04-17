@@ -162,3 +162,15 @@ img.icon
 {
     filter: none !important;
 }
+
+.loader
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 5px;
+    width: 0;
+    background: #83b84f;
+    transition: width 1s;
+    z-index: 1100;
+} 

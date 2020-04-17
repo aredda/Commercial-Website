@@ -32,7 +32,7 @@ class Purchase
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\PurchaseDetail", mappedBy="purchase", orphanRemoval=true, fetch="EAGER")
      */
-    private $purchaseDetails;
+    public $purchaseDetails;
 
     public function __construct()
     {
@@ -44,9 +44,9 @@ class Purchase
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate()
     {
-        return $this->date;
+        return $this->date->format ('Y-m-d');
     }
 
     public function setDate(\DateTimeInterface $date): self
@@ -97,5 +97,15 @@ class Purchase
         }
 
         return $this;
+    }
+
+    public function getTotalPrice ()
+    {
+        $total = 0;
+
+        foreach ($this->getPurchaseDetails() as $detail)
+            $total += $detail->getQuantity () * $detail->getProduct()->getPrice ();
+
+        return $total;
     }
 }

@@ -7,11 +7,10 @@ use App\Entity\Category;
 use App\Entity\Favorite;
 use App\Entity\Product;
 use App\Entity\Purchase;
-use App\Entity\User;
-use Doctrine\Migrations\Version\Factory;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\PurchaseDetail;
+use ReflectionClass;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends BaseController
@@ -21,10 +20,8 @@ class MainController extends BaseController
      */
     public function index()
     {
-        $this->prepareSession ();
-
         return $this->render('main/index.html.twig', [
-            'recommended' => [],
+            'recommended' => $this->getTopProducts(),
             'categories' => $this->getRows(Category::class),
             'products' => $this->getRows(Product::class)
         ]);
@@ -35,7 +32,11 @@ class MainController extends BaseController
      */
     public function dashboard ()
     {
-        $this->prepareSession();
+        if ($this->getFromSession('user') == null)
+            return $this->redirectToRoute('welcome');
+
+        if (strcmp ($this->getFromSession('user')->getType(), 'admin') != 0)
+            return $this->redirectToRoute('welcome');
 
         return $this->render ('main/dashboard.html.twig', [
             'categories' => $this->getRows(Category::class),
@@ -48,9 +49,10 @@ class MainController extends BaseController
      */
     public function cart()
     {
-        $s = $this->prepareSession();
+        if ($this->getFromSession('user') == null)
+            return $this->redirectToRoute('welcome');
 
-        $products = NavigateController::getProducts(Cart::class, $this->getRows(Cart::class), [ 'customer_id' => $this->getFromSession($s, 'user')->getId () ]);
+        $products = NavigateController::getProducts(Cart::class, $this->getRows(Cart::class), [ 'customer_id' => $this->getSessionId() ]);
         $categories = $this->extractCategories($products);
 
         return $this->render ('main/cart.html.twig', [
@@ -64,9 +66,10 @@ class MainController extends BaseController
      */
     public function favorite()
     {
-        $s = $this->prepareSession();
+        if ($this->getFromSession('user') == null)
+            return $this->redirectToRoute('welcome');
 
-        $products = NavigateController::getProducts(Favorite::class, $this->getRows(Favorite::class), [ 'customer_id' => $this->getFromSession($s, 'user')->getId () ]);
+        $products = NavigateController::getProducts(Favorite::class, $this->getRows(Favorite::class), [ 'customer_id' => $this->getSessionId() ]);
         $categories = $this->extractCategories($products);
 
         return $this->render ('main/favorite.html.twig', [
@@ -80,11 +83,16 @@ class MainController extends BaseController
      */
     public function history()
     {
-        $purchases = NavigateController::filter(Purchase::class, $this->getRows(Purchase::class), [
-            'customer_id' => $this->getFromSession($this->prepareSession (), 'user')->getId ()
-        ]);
+        if ($this->getFromSession('user') == null)
+            return $this->redirectToRoute('welcome');
 
-        return $this->render ('main/history.html.twig', ['purchases' => $purchases]);
+        $purchases = NavigateController::filter(Purchase::class, $this->getRows(Purchase::class), [ 'customer_id' => $this->getSessionId() ]);
+        
+        // Calculating the total of all purchases
+        $total = 0;
+        foreach ($purchases as $p) $total += $p->getTotalPrice ();
+
+        return $this->render ('main/history.html.twig', ['purchases' => $purchases, 'total' => $total]);
     }
 
     # Extract list of distinct categories
@@ -99,15 +107,40 @@ class MainController extends BaseController
         return $categories;
     }
 
-    # Prepare Test Session
-    public function prepareSession ()
+    # A method to retrieve top consumed products
+    private function getTopProducts ()
     {
-        $session = new Session();
-        $session->start();
+        $map = [];
+        $top = [];
 
-        if (!$session->has('user'))
-            $session->set ('user', $this->getRows(User::class) [0]);
+        foreach ($this->getRows(PurchaseDetail::class) as $detail)
+        {
+            $productId = $detail->getProduct()->getId();
 
-        return $session;
+            if (!array_key_exists($productId, $map))
+                $map[$productId] = 0;
+
+            $map[$productId] += 1;
+        }
+
+        while (count ($map) > 5)
+        {
+            $minKey = array_key_first($map);
+            $minCounter = $map[$minKey];
+
+            foreach ($map as $key => $counter)
+                if ($counter < $minCounter)
+                {
+                    $minKey = $key;
+                    $minCounter = $counter;    
+                }
+
+            unset($map[$minKey]);
+        }
+
+        foreach ($map as $key => $record)
+            $top[] = $this->getManager()->find(Product::class, $key);
+
+        return $top;
     }
 }

@@ -1,31 +1,34 @@
-{# Unauthenticated user #}
-<div class="row navbar">
-    <a href="welcome" class="h1 p-0 m-0 text-main">Shop</a>
-    <span data-toggle="modal" data-target="#modal-sign-in" class="nav-item text-main-dark">Sign in</span>
-</div>
-{# Authenticated user #}
-{#
-<div class="row navbar">
-    <a href="#" class="h1 p-0 m-0 text-main">Shop</a>
-    <ul class="icon-list">
-        <li>
-            <a href="#purchases"><img src="media/bag.png" /></a>
-        </li>
-        <li>
-            <a href="#cart"><img src="media/cart.png" /></a>
-        </li>
-        <li>
-            <a href="#favorites"><img src="media/star.png" /></a>
-        </li>
-    </ul>
-    <ul class="icon-list">
-        <!-- Admin privilige -->
-        <li>
-            <a href="#manage"><img src="media/edit.png" /></a>
-        </li>
-        <li>
-            <a href="#logout"><img src="media/logout.png" class="icon"></a>
-        </li>
-    </ul>
-</div>
-#}
+{% if app.session.get('user') is not null %}
+    {# Authenticated user #}
+    <div class="row navbar pr-0">
+        <a href="welcome" class="h1 p-0 m-0 text-main">Shop</a>
+        <ul class="icon-list">
+            <li>
+                <a href="history"><img src="../media/bag.png" /></a>
+            </li>
+            <li>
+                <a href="cart"><img src="../media/cart.png" /></a>
+            </li>
+            <li>
+                <a href="favorite"><img src="../media/star.png" /></a>
+            </li>
+        </ul>
+        <ul class="icon-list">
+            <!-- Admin privilige -->
+            {% if app.session.get('user').type == "admin" %}
+            <li>
+                <a href="dashboard"><img src="../media/edit.png" /></a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="signOut"><img src="../media/logout.png" class="icon"></a>
+            </li>
+        </ul>
+    </div>
+{% else %}
+    {# Unauthenticated user #}
+    <div class="row navbar pr-0">
+        <a href="welcome" class="h1 p-0 m-0 text-main">Shop</a>
+        <span data-toggle="modal" data-target="#modal-sign-in" class="nav-item text-main-dark">Sign in</span>
+    </div>
+{% endif %}

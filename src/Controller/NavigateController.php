@@ -25,8 +25,8 @@ class NavigateController extends BaseController
         $targetEntity = $this->getEntityName ($request);
 
         // If the filter requires the customer relativity add the registered id in the session to the criteria
-        if (in_array($targetEntity, [Cart::class, Favorite::class, Purchase::class, PurchaseDetail::class]))
-            $request->request->add (['customer_id' => $request->getSession()->get('user')->getId ()]);
+        if (in_array($targetEntity, [Cart::class, Favorite::class, Purchase::class]))
+            $request->request->add (['customer_id' => $this->getSessionId ()]);
 
         return new JsonResponse(['success' => self::filter($targetEntity, $this->getRows($targetEntity), $request->request->all ())]);
     }
@@ -43,7 +43,7 @@ class NavigateController extends BaseController
             $entity = $this->getEntityName ($request);
 
             $criteria = [
-                'customer_id' => $request->session->get ('user')->getId () 
+                'customer_id' => $this->getSessionId ()
             ];
 
             return new JsonResponse(['success' => self::getProducts($entity, $this->getRows($entity), $criteria)]);

@@ -51,7 +51,6 @@
         <table class="table table-striped text-center rounded shadow">
             <thead class="thead bg-main-gradient text-white font-weight-bold">
                 <tr>
-                    <td>Photo</td>
                     <td>Name</td>
                     <td>Quantity</td>
                     <td>Price</td>
@@ -62,7 +61,6 @@
             <tbody class="text-secondary" id='list-products'>
             {% for product in products %}
                 <tr>
-                    <td></td>
                     <td>{{ product.getName() }}</td>
                     <td>{{ product.getQuantity() }}</td>
                     <td>{{ product.getPrice() }} $</td>

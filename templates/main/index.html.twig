@@ -2,14 +2,21 @@
 
 {% block title %}Welcome{% endblock %}
 
+{% block highlights_name %}Welcome to our humble Shop{% endblock %}
+{% block highlights_desc %}We provide different products among many various categories, feel free to explore our goods.{% endblock %}
+
 {% block highlights_slider %}
     <div class="col-lg-5 slideshow bg-main-light rounded-lg shadow">
         <div class="slideshow-content p-2">
-            {% for product in products %}
+            {% for product in recommended %}
                 {% set hide = '' %}
                 {% if loop.index0 > 0 %}{% set hide = 'd-none' %}{% endif %}
                 <div class='row {{ hide }}'>
-                    <div class="col-lg-5 bg-main rounded-lg"></div>
+                    <div class="col-lg-5 bg-main rounded-lg">
+                    {% if product.getPhoto() != null %}
+                        <img class='w-100 h-100 rounded-lg shadow' src='../{{ product.getPhoto() }}' />
+                    {% endif %}
+                    </div>
                     <div class="col-lg">
                         <h3 class="text-main-dark">{{ product.getName() }}</h3>
                         <p>{{ product.getDescription() }}</p>
@@ -19,7 +26,7 @@
             {% endfor %}
         </div>
         <div class="slideshow-control text-center p-2">
-            {% for product in products %}
+            {% for product in recommended %}
                 <div class="slideshow-handler bg-main rounded-lg shadow"></div>
             {% endfor %}
         </div>
@@ -53,7 +60,11 @@
         {% for product in products %}
             <div class="showcase-item col-lg-6" record-key='{{ product.getId() }}'>
                 <div class="row">
-                    <div class="col-lg-5 bg-main rounded-lg shadow"></div>
+                    <div class="col-lg-5 bg-main rounded-lg shadow p-0">
+                    {% if product.getPhoto() != null %}
+                        <img class='w-100 h-100 rounded-lg shadow' src='../{{ product.getPhoto() }}' />
+                    {% endif %}
+                    </div>
                     <div class="col-lg-7">
                         <h4 class="text-main-dark">{{ product.getName() }}</h4>
                         <p>{{ product.getDescription() }}</p>

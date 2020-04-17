@@ -10,10 +10,12 @@ use App\Entity\Purchase;
 use App\Entity\PurchaseDetail;
 use App\Entity\User;
 use App\Utility\ReflectionUtility;
+use App\Utility\UploadUtility;
 use DateTime;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,9 +33,8 @@ class ManageController extends BaseController
             $this->validateRequest ($request, ['entity']);
     
             $manager = $this->getManager ();
-            $entity = $this->getEntityName($request);
-    
-            $manager->persist (ReflectionUtility::toObject ($request->request->all(), $entity, $manager));
+
+            $manager->persist ($this->uploadFiles ($request, ReflectionUtility::toObject ($request->request->all(), $this->getEntityName($request), $manager), false));
             $manager->flush ();
     
             return new JsonResponse(['success' => 'Insertion has succeeded']);
@@ -56,7 +57,7 @@ class ManageController extends BaseController
             $manager = $this->getManager ();
             $entity = $this->getEntityName($request);
     
-            ReflectionUtility::toObject ($request->request->all(), $entity, $manager, $manager->find($entity, $request->get('id')));
+            $this->uploadFiles($request, ReflectionUtility::toObject ($request->request->all(), $entity, $manager, $manager->find($entity, $request->get('id'))), true);
 
             $manager->flush ();
     
@@ -156,6 +157,73 @@ class ManageController extends BaseController
         {
             return new JsonResponse(['error' => $x->getMessage()]);
         }
+    }
+
+    /**
+     * @Route("/signUp", name="signUp")
+     */
+    public function signUp (Request $r)
+    {
+        try 
+        {
+            $this->validateRequest($r, [
+                'firstName', 'lastName', 'email', 'password', 'confirmPassword'
+            ]);
+   
+            if ( strcmp ( $r->get('password'), $r->get('confirmPassword') ) != 0 )
+                throw new Exception('The pasword confirmation doesn\'t match the password!');
+            
+            return $this->insert($r);
+        } 
+        catch (Exception $x) 
+        {
+            return new JsonResponse(['error' => $x->getMessage()]);
+        }
+    }
+
+    /**
+     * @Route ("/signOut", name="signOut")
+     */
+    public function signOut (Request $request)
+    {
+        $request->getSession()->clear ();
+
+        return $this->redirectToRoute ('welcome');
+    }
+
+    /**
+     * @Route("/signIn", name="signIn")
+     */
+    public function signIn (Request $request)
+    {
+        try
+        {
+            $this->validateRequest ($request, ['email', 'password']);
+
+            $searchResult = NavigateController::filter(User::class, $this->getRows(User::class), [
+                'email' => $request->get('email'),
+                'password' => $request->get('password')
+            ]);
+
+            if (count($searchResult) == 0)
+                throw new Exception('Invalid email or password');
+
+            $request->getSession()->set('user', $searchResult[0]);
+
+            return new JsonResponse(['success' => 'Signed in']);
+        }
+        catch (Exception $e)
+        {
+            return new JsonResponse(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @Route ("/isSignedIn", name="isSignedIn")
+     */
+    public function isSignedIn (Request $request)
+    {
+        return new JsonResponse($request->getSession()->has('user'));
     }
 
 }

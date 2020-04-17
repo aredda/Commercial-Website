@@ -4,6 +4,10 @@ import ProductTableRow from './items/productRow.js';
 import CategoryTableRow from './items/categoryRow.js';
 import CartProductItem from './items/cartProduct.js';
 import FavoriteProductItem from './items/favoriteProduct.js';
+import PurchaseItem from './items/purchase.js';
+import Loader from './loader.js';
+import Modal from './modal.js';
+import Toast from './toast.js';
 
 const cleanUpCallbacks = [
     {
@@ -15,7 +19,7 @@ const cleanUpCallbacks = [
                     // attempting to refresh view
                     ListItem.layout(container, listItem, response.success)
                     // extra operations
-                    onRefresh();
+                    if (onRefresh != null) onRefresh();
                 }
             });
         }
@@ -58,7 +62,16 @@ const items = [
     }
 ];
 
+let isSignedin = false;
+
 $(document).ready (function () {
+
+    // Retrieve components
+    let modal = new Modal('#modal-alert');
+    let toast = new Toast('.toast');
+
+    // When the page is ready, check if this client is signed in or not
+    request ('isSignedIn', {}, (r) => { isSignedin = r; });
 
     // Selecting functionality
     $(document).on ('click', '.selectable', function () {
@@ -116,6 +129,8 @@ $(document).ready (function () {
 
     // Showcase item effects
     $(document).on ('mouseenter', '.showcase-item', function () {
+        // Conditions to respect
+        if (!isSignedin) return;
         if ($(this).find('.btn-star, .btn-add-to-cart').length == 0) return;
         // Show control button
         $(this).find ('.icon.clickable').removeClass ('d-none');
@@ -209,6 +224,7 @@ $(document).ready (function () {
                 // Fill form
                 for (let property in record)
                 {
+                    if (property == 'photo') continue;
                     if (record[property] == null) continue;
 
                     form.find (`*[name='${property}']`).val (record[property].hasOwnProperty('id') ? record[property].id : record[property]);
@@ -234,7 +250,8 @@ $(document).ready (function () {
         // Send a request
         request ((!data.has('id') ? 'insert' : 'update'), data, (response) => {
             // Refresh
-            if (response.hasOwnProperty ('success')) invoke (getCallbacks ($(this)));
+            if (response.success) invoke (getCallbacks ($(this)));
+            else toast.show('Error', response.error);
         }, null, { contentType: false, processData: false });
     });
 
@@ -246,18 +263,22 @@ $(document).ready (function () {
             id: $(this).attr ('record-key')
         }, (response) => {
             // Refresh
-            if (response.hasOwnProperty ('success'))
-                invoke (getCallbacks ($(this)));
+            if (response.success) invoke (getCallbacks ($(this)));
         });
     });
 
     // Adding to cart/favorites
     $(document).on ('click', '.btn-add-to-cart:not(.added), .btn-star:not(.added)', function () {
-        // Retrieve product key
+        // Retrieve essential data
         let recordKey = $(this).closest ('.showcase-item').attr ('record-key');
+        let entity = $(this).attr('target-entity');
         // Send a request
-        request ('addToUser', { entity: $(this).attr('target-entity'), product: recordKey }, (r) => {
-            if (r.success) $(this).addClass ('added');
+        request ('addToUser', { entity: entity, product: recordKey }, (r) => {
+            if (r.success) 
+            {
+                $(this).addClass ('added');
+                toast.show('Success', `Added to ${entity} list!`);
+            } 
         });
     });
 
@@ -309,12 +330,26 @@ $(document).ready (function () {
     $('.btn-purchase').click (function () {
         // retrieve selected product items
         let items = $('.showcase-item:has(.selected)'), productIds = [], quantities = [];
+        // check if there are selected items
+        if (items.length == 0)
+        {
+            modal.show('Information', 'There are no selected items to purchase!');
+
+            return;
+        }
         // fill data
         for (let i of items)
         {
+            if ($(i).attr('data-quantity') == '0')
+                continue;
+
             productIds.push ( $(i).attr('record-key') );
             quantities.push ( $(i).attr('data-quantity') );
         }
+        // checkk
+        if (productIds.length == 0)
+            modal.show('Error', 'Make sure you ordered something!');
+        else
         // purchase request
         request ('purchase', { ids: productIds, quantities: quantities }, (r) => {
             if (r.success)
@@ -323,12 +358,122 @@ $(document).ready (function () {
                 $('.showcase-navigation li.active').trigger ('click');
                 // if there's no active category, just refresh all
                 if ($('.showcase-navigation li.active').length == 0)
-                    getCallback('refresh_table').method('cart', new CartProductItem(), '#list-products', () => {
-                        // refresh cart stats
-                        getCallback('refresh_cart_stats').method();
-                    });
+                    getCallback('refresh_table').method('cart', new CartProductItem(), '#list-products', getCallback('refresh_cart_stats').method);
+            }
+            else modal.show('Error', r.error);
+        });
+    });
+
+    // Filter by date
+    $('.btn-filter-date').click (function () {
+        request ('filter', { entity: 'purchase', date: [$('*[name="start"]').val(), 7] }, (r1) => {
+            if (r1.success)
+            {
+                // Get the loader
+                let loader = new Loader(2, 1);
+                loader.takeStep ();
+                // Complete filter operation
+                request ('filter', { entity: 'purchase', date: [$('*[name="end"]').val(), 8] }, (r2) => {
+                    if (r2.success)
+                    {
+                        // Get the items who met both conditions 
+                        let intersection = r1.success.filter (i => r2.success.find (j => j.id == i.id) != null);
+                        // onComplete 
+                        let complete = () => {
+                            // Calculate purchase's total price
+                            let purchaseTotal = (purchase) => {
+                                let total = 0;
+
+                                for (let detail of purchase.purchaseDetails)
+                                    total += detail.quantity * detail.product.price;
+
+                                purchase['totalPrice'] = total;
+
+                                return total;
+                            };
+                            // Calculate the sum of all purchase's total prices
+                            let total = 0; intersection.forEach ((purchase) => { total += purchaseTotal(purchase); });
+                            // Refresh item container
+                            ListItem.layout ('#list-purchases', new PurchaseItem(), intersection);
+                            // Update out labels
+                            $('.out-purchase-count').text (intersection.length);
+                            $('.out-purchase-total').text (`${total} $`);
+                        };
+                        // Reset loader anyways
+                        loader.reset ();
+                        // Check if there are positive results
+                        if (intersection.length == 0) 
+                        {
+                            complete ();
+
+                            return;
+                        }
+                        // Update loader settings
+                        loader.capacity = intersection.length;
+                        // Recursive progressive function
+                        let func = (index, onFinish) => {
+                            if (index == intersection.length)
+                            {
+                                onFinish ();
+                                return;
+                            }
+                            // retrieve purchase
+                            let purchase = intersection[index];
+                            // Get all purchase details
+                            request ('filter', { entity: 'purchaseDetail', purchase_id: purchase.id }, (r) => { 
+                                // Update purchase's details array
+                                intersection[index].purchaseDetails = r.success; 
+                                // Increment loader
+                                loader.takeStep ();
+                                // Increment index, then recall func
+                                func (++index, onFinish);
+                            });
+                        };
+                        // Start the function
+                        func (0, complete);
+                    }
+                });
             }
         });
+    });
+
+    // Sign in
+    $('.btn-signin').click (function () {
+        // Retrieve loader
+        let loader = new Loader(2, 1);
+        loader.takeStep();
+        // Gather data
+        let formData = $('.modal-sign-in').serialize ();
+        // Request signing in
+        request ('signIn', formData, (r) => {
+            // Refresh page
+            if (r.success)
+            {
+                loader.takeStep();
+                setTimeout (() => {window.location.reload ()}, 1250);
+            } 
+            // Show error message
+            else 
+            {
+                loader.reset();
+                toast.show('Error', r.error);
+            }
+        });
+    });
+
+    // Sign up
+    $('.btn-signup').click (function () {
+        // Retrieve form data
+        let formData = new FormData ($('.modal-sign-up')[0]);
+        formData.append('entity', 'user');
+        formData.append('type', 'customer');
+        // Request
+        request ('signUp', formData, (r) => {
+            // Adjust settings
+            let options = r.success ? { title: 'Information', message: r.success } : { title: 'Alert', message: r.error }; 
+            // Show modal
+            toast.show (options.title, options.message);
+        }, null, { processData: false, contentType: false });
     });
 
 });
@@ -354,11 +499,8 @@ function request (url, data, onSuccess, onFail=null, other=null)
 /** Retrieve the clean up callbacks from an html element */
 function getCallbacks (element)
 {
-    if (element.attr('cleanup') !== true)
-        return null;
-
-    if (typeof element.attr('cleanup') === undefined)
-        return null;
+    if (!element[0].hasAttribute ('cleanup'))
+        return;
 
     let idArray = element.attr ('cleanup').split (',');
 

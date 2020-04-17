@@ -32,12 +32,16 @@
         {% for product in products %}
             <div class="showcase-item col-lg-12" record-key='{{ product.getId() }}' data-max-quantity='{{ product.getQuantity() }}' data-quantity='0' data-price='{{ product.getPrice() }}'>
                 <div class="row selectable">
-                    <div class="col-lg-3 bg-main rounded-lg shadow"></div>
+                    <div class="col-lg-3 bg-main rounded-lg shadow p-0">
+                    {% if product.getPhoto() != null %}
+                        <img class='w-100 h-100 rounded-lg shadow' src='../{{ product.getPhoto() }}' />
+                    {% endif %}
+                    </div>
                     <div class="col-lg-9">
                         <h4 class="text-main-dark mt-2">{{ product.getName() }}</h4>
                         <p>{{ product.getDescription() }}</p>
                         <span class='position-absolute' style='bottom: 0px'>
-                            <img src="../media/cart.png" class="icon clickable btn-add-to-cart" target-entity='cart' />
+                            <img src="../media/cart.png" class="icon clickable btn-add-to-cart d-none" target-entity='cart' />
                         </span>
                         <span class="badge bg-main-dark text-white shadow">{{ product.getPrice () }} $</span>
                         <span class='text-main-dark position-absolute d-none select-indicator' style='top: 0; right: 0'>

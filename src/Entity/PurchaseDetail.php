@@ -14,24 +14,24 @@ class PurchaseDetail
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    public $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Product", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $product;
+    public $product;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $quantity;
+    public $quantity;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Purchase", inversedBy="purchaseDetails")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $purchase;
+    public $purchase;
 
     public function getId(): ?int
     {
@@ -72,5 +72,10 @@ class PurchaseDetail
         $this->purchase = $purchase;
 
         return $this;
+    }
+
+    public function getDetailTotalPrice ()
+    {
+        return $this->getProduct()->getPrice () * $this->quantity;
     }
 }

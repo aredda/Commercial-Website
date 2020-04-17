@@ -1,7 +1,7 @@
 • Authentication
-    - Sign in
-    - Sign out
-    - Sign up
+    - [DONE] Sign in
+    - [DONE] Sign out
+    - [DONE] Sign up
 • Cart
     - [DONE] Filter by {Category}
     - [DONE] Item Selection
@@ -16,9 +16,9 @@
     - [DONE] Remove item from favorites
     - [DONE] List favorite products
 • History
-    - Filter by {Date}
-    - List purchases
-    - {Number, Total Cost} counters
+    - [DONE] Filter by {Date}
+    - [DONE] List purchases
+    - [DONE] {Number, Total Cost} counters
 • Home
     - [DONE] Filter by {Category}
     - [DONE] List products
@@ -26,3 +26,17 @@
 • Dashboard
     - [DONE] Add, [DONE] Edit, [DONE] Delete {Product, Category}
     - [DONE] Filter products by {Name, Category}
+• Optimisation
+    - [DONE] Making a loader
+    - [DONE] Adding some effects
+    - [DONE] Fixing the problem of not showing the counters in History page
+    - [DONE] Image Upload
+    - [DONE] Add an alert modal.
+    - [DONE] Show images
+• Issues
+    - [DONE] Cannot retrieve Session's user id
+    - [DONE] Page access is messed up
+    - Empty space
+    - [DONE] Slider should display the most top 5 consumed products
+    - [DONE] When editing - especially editing a product - the file input throws an error
+    if i tried to assign it a value

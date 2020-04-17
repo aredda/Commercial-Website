@@ -10,6 +10,8 @@ abstract class OperatorUtility
     public const CONTAINS = 4;
     public const BIGGER_THAN_OR_EQUALS = 5;
     public const SMALLER_THAN_OR_EQUALS = 6;
+    public const LATER_THAN = 7;
+    public const OLDER_THAN = 8;
 
     public static function get (int $operator = self::EQUALS)
     {
@@ -20,6 +22,8 @@ abstract class OperatorUtility
             case self::CONTAINS:                return function ($a, $b) { return (strpos ($a, $b) !== false); };
             case self::BIGGER_THAN_OR_EQUALS:   return function ($a, $b) { return $a >= $b; };
             case self::SMALLER_THAN_OR_EQUALS:  return function ($a, $b) { return $a <= $b; };
+            case self::LATER_THAN:              return function ($a, $b) { return strtotime($a) >= strtotime($b); };
+            case self::OLDER_THAN:              return function ($a, $b) { return strtotime($a) <= strtotime($b); };
         }
         # Default case
         return function ($a, $b) { return $a == $b; };
